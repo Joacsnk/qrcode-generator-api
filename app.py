@@ -40,5 +40,5 @@ def get_qrcode():
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=False)
 
