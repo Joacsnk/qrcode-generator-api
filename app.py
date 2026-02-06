@@ -1,10 +1,19 @@
 from flask import Flask, request, jsonify, send_file
 from services import qrcode_services as qr_def
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 app = Flask(__name__)
 
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["30 per minute"]
+)
+
 # Rota principal
 @app.route("/api/qrcode", methods=["GET"])
+@limiter.limit("30 per minute")
 def get_qrcode():
     
     # Leitura de parâmetros
@@ -31,5 +40,5 @@ def get_qrcode():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
 
