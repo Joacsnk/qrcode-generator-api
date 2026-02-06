@@ -1,13 +1,33 @@
-from flask import Flask, jsonify, request
+from flask import Flask, request, jsonify, send_file
+from services import qrcode_services as qr_def
 
 app = Flask(__name__)
 
+# Rota principal
 @app.route("/api/qrcode", methods=["GET"])
 def get_qrcode():
-    url = request.args.get("url", type=str)
-    type_img = request.args.get("img", type=str)
-    return jsonify("teste sempre")
+    
+    # Leitura de parâmetros
+    url = request.args.get("url") # URL do site
+    img_type = request.args.get("img", "png") # Tipo de imagem, png como padrão
 
+    # Caso sem url passada
+    if not url:
+        return jsonify({"erro": "Parâmetro 'url' é obrigatório"}), 400
+
+    try: # Gerador de qrcode
+        qr_img = qr_def.qrcode_generator(url, img_type)
+        
+        # Resposta
+        return send_file(
+            qr_img,
+            mimetype=f"image/{img_type}",
+            download_name=f"qrcode.{img_type}"
+        )
+
+    except ValueError as e:
+        return jsonify({"erro": str(e)}), 400
+    
 
 
 if __name__ == "__main__":
